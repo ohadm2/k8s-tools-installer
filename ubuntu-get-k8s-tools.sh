@@ -8,6 +8,7 @@ sudo apt update
 sudo apt install docker.io curl -y
 sudo systemctl enable docker.service
 sudo adduser $USERNAME docker
+sudo service docker restart
 
 # minikube
 
