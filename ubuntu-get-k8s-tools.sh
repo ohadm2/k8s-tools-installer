@@ -20,13 +20,16 @@ sudo systemctl enable docker.service
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 
 sudo install kubectl /usr/local/bin/kubectl
-sudo kubectl completion bash > /etc/bash_completion.d/kubectl
 
-sudo cp complete_alias.sh /etc/bash_completion.d/
+if ! [ -s "/etc/bash_completion.d/kubectl" ]; then
+	kubectl completion bash > /tmp/kubectl_completion
+	sudo cp /tmp/kubectl_completion /etc/bash_completion.d/kubectl
+	sudo cp complete_alias.sh /etc/bash_completion.d/
 
-cp ~/.bashrc ~/bashrc-backup-$(date +%s)
-cp bashrc-for-k8s ~/.bashrc
-source ~/.bashrc
+	cp ~/.bashrc ~/bashrc-backup-$(date +%s)
+	cp bashrc-for-k8s ~/.bashrc
+	. ~/.bashrc
+fi
 
 h
 
