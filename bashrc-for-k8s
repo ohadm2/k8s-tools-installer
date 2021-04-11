@@ -1,0 +1,557 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
+    fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# colored GCC warnings and errors
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+#alias l='ls -CF'
+
+alias vf='cd'
+alias cls='clear'
+
+alias di='docker images'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias g='kubectl get'
+alias grep='grep --color=auto'
+alias k='kubectl'
+alias la='ls -A'
+alias ll='ls -alF'
+alias ls='ls --color=auto'
+alias ns='kubectl get ns'
+alias p='kubectl get pods'
+alias d='kubectl describe'
+alias D='kubectl delete'
+alias a='kubectl apply -f'
+alias l1='kubectl logs `kubectl get pods -o name | tail -1`'
+alias l='kubectl logs'
+alias e='kubectl edit'
+alias ex='kubectl exec -it'
+alias svc='kubectl get svc'
+alias pod='kubectl get pod'
+alias cm='kubectl get cm'
+alias s='kubectl get secret'
+
+alias getns='env | grep NAMESPACE'
+
+alias xargs='xargs '
+alias watch='watch '
+alias w='watch '
+alias wp='watch p'
+
+alias kgrep='grep --color=always "^^^\|'
+
+alias conf='kubectl -n $NAMESPACE get configmaps -o yaml'
+
+alias kexec=kshell
+alias help=funcs
+alias h=funcs
+
+#alias setns=alias kubectl="kubectl -n $1"
+#alias conf='for i in $(kubectl get configmaps -o name);do echo "^^^$i:"; kubectl get $i -o yaml;done'
+
+function funcs()
+{
+	echo "Currently supported functions:"
+	echo "-------------------------------"
+	echo ""
+	echo "setup functions:"
+	echo "================="
+	echo "setns - setup the namespace to work with. MANDATORY for most of the functions."
+	echo "getns - get the namespace that the functions currently work with."
+	echo ""
+	echo "All of the following functions use the above namespace setup."
+	echo ""
+	echo "functions:"
+	echo "================="
+	echo "getall - get all elements in the namespace."
+	echo "ksearch - search for data in specified elements inside the namespace. Run without params for usage info."
+	echo "klogs - search for data in the logs of all the pods inside the namespace. Run without params for usage info."
+	echo "kcmd - run a command on a list of pods. Run without params for usage info."
+	echo "kshell a.k.a kexec - select a pod to run a shell under from a list of all the containers in the namespace. The default shell is bash. If you need to run a different one give it to the function as a parameter e.g. kexec ash."
+	echo "kbackup - backup all of the resources of the namespace to files."
+	echo ""
+	echo "Happy Kubernetesing :)"
+}
+
+function setns() 
+{ 	
+	export NAMESPACE=$1
+	alias kubectl='kubectl -n '$NAMESPACE;
+}
+
+function getall()
+{
+	kubectl -n $NAMESPACE api-resources --verbs=list --namespaced -o name | xargs -n 1 kubectl -n $NAMESPACE get --show-kind --ignore-not-found
+}
+
+function ksearch() 
+{ 	
+	if [ "$NAMESPACE" == "" ]; then
+		echo "You must set a namespace to work on first!"
+		echo "Run the command: setns <namespace-to-work-on>"
+	else
+		if [ "$1" == "" ]; then
+			echo "usage: ksearch <k8s-resource-type> <what-to-search-for>"
+			echo "e.g. ksearch configmap 8080"
+		else
+			if [ "$2" == "" ]; then
+				SEARCH_FOR=".*"
+				GREP_COLOR_OPTION="never"
+			else
+				SEARCH_FOR="$2"
+				GREP_COLOR_OPTION="always"
+			fi
+
+			for i in $(kubectl -n $NAMESPACE get $1 -o name);do echo "^^^$i:"; kubectl -n $NAMESPACE get $i -o yaml;done | grep -i --color=$GREP_COLOR_OPTION "^^^\|$SEARCH_FOR"
+		fi
+	fi
+}
+
+function klogs()
+{
+        if [ "$NAMESPACE" == "" ]; then
+                echo "You must set a namespace to work on first!"
+                echo "Run the command: setns <namespace-to-work-on>"
+        else	
+	        if [ "$1" == "" ]; then
+        	        echo "usage: klogs <pods-group-partial-name> <what-to-search-for>"
+                	echo "e.g. klogs api error"
+	        else
+        	        if [ "$2" == "" ]; then
+                	        SEARCH_FOR=".*"
+				GREP_COLOR_OPTION="never"
+	                else
+        	                SEARCH_FOR="$2"
+				GREP_COLOR_OPTION="always"
+	                fi				
+	
+			for i in $(kubectl -n $NAMESPACE get pods -o name | grep -i $1);do
+				echo "^^^$i:"
+				OUTPUT=$(kubectl -n $NAMESPACE logs $i 2>/dev/null)
+			
+				if [ "$OUTPUT" == "" ]; then
+					CONTAINERS_LIST=`kubectl -n $NAMESPACE logs $i 2>&1 | awk -F: '{print $3}' | tr -d "[" | tr -d "]"`
+					
+					for j in $CONTAINERS_LIST; do
+						kubectl -n $NAMESPACE logs $i -c $j | grep -i --color=$GREP_COLOR_OPTION "^^^\|$SEARCH_FOR"
+					done
+				else
+					echo $OUTPUT | grep -i --color=$GREP_COLOR_OPTION "^^^\|$SEARCH_FOR"
+				fi
+			done
+		fi
+	fi
+}
+
+function kcmd()
+{
+        if [ "$NAMESPACE" == "" ]; then
+                echo "You must set a namespace to work on first!"
+                echo "Run the command: setns <namespace-to-work-on>"
+        else	
+	        if [ "$1" == "" ]; then
+        	        echo "usage: kcmd <pods-group-partial-name> <cmd-to-run>"
+                	echo "e.g. kcmd api curl"
+			echo "hint: use quotes to run a multi-word command. e.g. kcmd sys \"curl 10.10.10.1\""
+	        else
+        	        if [ "$2" == "" ]; then
+                	        CMD="/bin/bash <<< 'echo bash works on this pod!'"
+			else
+				CMD=$2
+	                fi				
+	
+			for i in $(kubectl -n $NAMESPACE get pods -o name | rev | uniq -s 17 | rev | grep -i $1); do
+				echo "^^^$i:"
+
+				# the kubectl logs command returns a list of containers upon failure and we need that list if the pod contains several different containers
+				OUTPUT=$(kubectl -n $NAMESPACE logs $i 2>/dev/null)
+			
+				if [ "$OUTPUT" == "" ]; then
+					CONTAINERS_LIST=`kubectl -n $NAMESPACE logs $i 2>&1 | awk -F: '{print $3}' | tr -d "[" | tr -d "]"`
+					
+					#echo "DEBUG: CONTAINERS_LIST=$CONTAINERS_LIST"
+
+					for j in $CONTAINERS_LIST; do
+						#echo "DEBUG: Running the command 'kubectl -n $NAMESPACE exec -it $i -c $j $CMD' ..."
+						echo "#### Current Container: $j ####"
+						echo ""
+						kubectl -n $NAMESPACE exec -it $i -c $j $CMD 2>&1
+						echo ""
+					done
+				else
+					#echo "DEBUG: Running the command 'kubectl -n $NAMESPACE exec -it $i $CMD' ..."
+					echo ""
+					kubectl -n $NAMESPACE exec -it $i $CMD 2>&1
+					echo ""
+				fi
+			done
+		fi
+	fi
+}
+
+function kshellv1()
+{
+        if [ "$NAMESPACE" == "" ]; then
+                echo "You must set a namespace to work on first!"
+                echo "Run the command: setns <namespace-to-work-on>"
+        else
+		if ! [ "$1" == "" ]; then
+			CMD=$1
+		else
+			CMD="/bin/bash"
+		fi
+	
+		K=1
+		PODS_EXEC_CMDS_ARR=()
+			
+		echo "Choose a pod:"
+		echo ""
+
+		for i in $(kubectl -n $NAMESPACE get pods -o name | rev | uniq -s 17 | rev); do
+			# the kubectl logs command returns a list of containers upon failure and we need that list if the pod contains several different containers
+			OUTPUT=$(kubectl -n $NAMESPACE logs $i 2>/dev/null | head -2)
+		
+			if [ "$OUTPUT" == "" -a "$?" -gt 0 ]; then
+				CONTAINERS_LIST=`kubectl -n $NAMESPACE logs $i 2>&1 | awk -F: '{print $3}' | grep "\[" | tr -d "[" | tr -d "]"`
+				
+				#echo "DEBUG: CONTAINERS_LIST=$CONTAINERS_LIST"
+
+				for j in $CONTAINERS_LIST; do
+					ARR_ITEM="kubectl -n $NAMESPACE exec -it $i -c $j $CMD"
+					
+					IFS_BACKUP=$IFS		
+					IFS=''
+
+					PODS_EXEC_CMDS_ARR+=($ARR_ITEM)
+
+					IFS=$IFS_BACKUP
+					
+					echo "$K) Pod: $i, Container: $j"					
+					
+					let K=(K+1)
+					#kubectl -n $NAMESPACE exec -it $i -c $j $CMD 2>&1
+					
+				done
+			else
+				ARR_ITEM="kubectl -n $NAMESPACE exec -it $i $CMD"
+
+				IFS_BACKUP=$IFS		
+				IFS=''
+
+				PODS_EXEC_CMDS_ARR+=($ARR_ITEM)
+
+				IFS=$IFS_BACKUP
+
+				echo "$K) Pod: $i, Container: single"					
+	
+				let K=(K+1)
+			fi
+		done
+		
+		echo "q) quit"		
+		echo ""
+
+		read -p "Your choice: " CHOICE
+		
+		# check that choice is of type integer
+		if [ "$CHOICE" -eq "$CHOICE" ] 2>/dev/null
+		then
+
+			if [ "$CHOICE" -lt "$K" -a "$CHOICE" -gt 0 ]; then
+				# index to choice fix
+				let CHOICE=(CHOICE-1)
+				
+				echo "DEBUG: command is: ${PODS_EXEC_CMDS_ARR[$CHOICE]}"
+				${PODS_EXEC_CMDS_ARR[$CHOICE]}
+			fi
+		fi
+	fi
+}
+
+function kshell()
+{
+        if [ "$NAMESPACE" == "" ]; then
+                echo "You must set a namespace to work on first!"
+                echo "Run the command: setns <namespace-to-work-on>"
+        else
+		if ! [ "$1" == "" ]; then
+			CMD=$1
+		else
+			CMD="/bin/bash"
+		fi
+		
+		MAX_NUM_OF_SEC_TO_COUNT_AS_NOT_WORKING=2
+		K=1
+		PODS_EXEC_CMDS_ARR=()
+		
+		NUM_OF_PODS=$(kubectl -n $NAMESPACE get pods --field-selector status.phase=Running -o name | wc -l)	
+
+		if [ "$NUM_OF_PODS" -lt 1 ]; then
+			echo "No running pods were found. Sorry..."
+			echo "Exiting ..."
+		else
+	
+			echo "Choose a pod:"
+			echo ""
+
+			for i in $(kubectl -n $NAMESPACE get pods --field-selector status.phase=Running -o name | rev | uniq -s 17 | rev); do
+				# the kubectl logs command returns a list of containers upon failure and we need that list if the pod contains several different containers
+				OUTPUT=$(kubectl -n $NAMESPACE logs $i 2>/dev/null | head -2)
+		
+				if [ "$OUTPUT" == "" -a "$?" -gt 0 ]; then
+					CONTAINERS_LIST=`kubectl -n $NAMESPACE logs $i 2>&1 | awk -F: '{print $3}' | grep "\[" | tr -d "[" | tr -d "]"`
+				
+					#echo "DEBUG: CONTAINERS_LIST=$CONTAINERS_LIST"
+
+					for j in $CONTAINERS_LIST; do
+						ARR_ITEM="kubectl -n $NAMESPACE exec -it $i -c $j $CMD"
+					
+						IFS_BACKUP=$IFS		
+						IFS=''
+
+						PODS_EXEC_CMDS_ARR+=($ARR_ITEM)
+
+						IFS=$IFS_BACKUP
+					
+						echo "$K) Pod: $i, Container: $j"					
+					
+						let K=(K+1)
+						#kubectl -n $NAMESPACE exec -it $i -c $j $CMD 2>&1
+					
+					done
+				else
+					LIST_MAKING_TIMER_IN_SEC=$(date +%s)
+
+					ARR_ITEM="kubectl -n $NAMESPACE exec -it $i $CMD"
+
+					IFS_BACKUP=$IFS		
+					IFS=''
+
+					PODS_EXEC_CMDS_ARR+=($ARR_ITEM)
+
+					IFS=$IFS_BACKUP
+
+					echo "$K) Pod: $i, Container: single"					
+	
+					let K=(K+1)
+				fi
+			done
+
+			echo "q) quit"		
+			echo ""
+
+			let LIST_MAKING_TIMER_IN_SEC=$(date +%s)-$LIST_MAKING_TIMER_IN_SEC
+			
+			if [ "$LIST_MAKING_TIMER_IN_SEC" -eq "0" ]; then
+				echo "DEBUG: The time it took to create the current list of pods is less than a second."
+			else
+
+				echo "DEBUG: The time it took to create the current list of pods is: $LIST_MAKING_TIMER_IN_SEC second(s)."
+			fi
+
+			echo ""
+			read -p "Your choice: " CHOICE
+
+			# check that choice is of type integer
+			if [ "$CHOICE" -eq "$CHOICE" ] 2>/dev/null
+			then
+
+				if [ "$CHOICE" -lt "$K" -a "$CHOICE" -gt 0 ]; then
+					# index to choice fix
+					let CHOICE=(CHOICE-1)
+				
+					echo "DEBUG: command is: ${PODS_EXEC_CMDS_ARR[$CHOICE]}"
+					
+					# time the cmd before running it to be able to check if it was successful or not
+					START_TIME=$(date +%s)
+					
+					# run the cmd
+					${PODS_EXEC_CMDS_ARR[$CHOICE]}
+					
+					let TIME_DIFF=$(date +%s)-$START_TIME
+					
+					if [ "$TIME_DIFF" -eq 0 ]; then
+						echo "DEBUG: The time difference for this run is less than a second."
+					else
+						echo "DEBUG: The time difference for this run is: $TIME_DIFF second(s)."
+					fi
+
+					if [ "$TIME_DIFF" -lt "$MAX_NUM_OF_SEC_TO_COUNT_AS_NOT_WORKING" ]; then
+						echo "It seems like your last try to get into a pod using the shell '$CMD' has failed. Maybe you need a different one in this case? (like ash?)"
+						echo "May I remind you that this function supports using a shell of your own (the default is 'bash') by running 'kshell /bin/ash' for example..."
+					fi
+				fi
+			fi
+		fi
+	fi
+}
+
+function kbackup()
+{
+        if [ "$NAMESPACE" == "" ]; then
+                echo "You must set a namespace to work on first!"
+                echo "Run the command: setns <namespace-to-work-on>"
+        else
+		NUM_OF_PODS=$(kubectl -n $NAMESPACE get pods -o name | wc -l)
+		
+		# check that choice is of type integer
+		if [ "$NUM_OF_PODS" -eq "$NUM_OF_PODS" ] 2>/dev/null
+		then		
+			if [ "$NUM_OF_PODS" -gt 0 ]; then
+				DIR_NAME=${NAMESPACE}-$(date +%Y-%m-%d_%H-%M-%S)
+				
+				echo "Creating a dir named '$DIR_NAME' for the current backup ... (the backup process may take a while ... please be patient)"
+				mkdir $DIR_NAME
+
+				if [ -d "$DIR_NAME" ]; then
+					cd $DIR_NAME
+					
+					echo "Creating sub dirs for the files ..."
+					kubectl -n $NAMESPACE api-resources --verbs=list --namespaced -o name | xargs -I {} -n 1 kubectl -n $NAMESPACE get {} --ignore-not-found -o name | xargs -I {} dirname {} | xargs mkdir 2>/dev/null
+
+					kubectl -n $NAMESPACE api-resources --verbs=list --namespaced -o name | xargs -I {} -n 1 kubectl -n $NAMESPACE get {} --ignore-not-found -o name | xargs -I {} -n 1 sh -c "echo Currently saving the file '{}.yaml' ... ; kubectl -n $NAMESPACE get {} --ignore-not-found -o yaml > {}.yaml"
+
+					ls
+				fi
+			fi
+		fi
+	fi
+}
+
+
+#setns test2
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+	. /usr/share/bash-completion/bash_completion
+   
+	# for kubectl first run from terminal (not from here!): kubectl completion bash > /etc/bash_completion.d/kubectl
+    
+	complete -F __start_kubectl k
+	
+	# these are available thanks to another bash completion script called 'complete_alias' available in Github
+	complete -F _complete_alias g
+	complete -F _complete_alias d
+	complete -F _complete_alias D
+	complete -F _complete_alias l
+	complete -F _complete_alias e
+	complete -F _complete_alias ex
+	complete -F _complete_alias p
+	complete -F _complete_alias ns
+	complete -F _complete_alias svc
+	complete -F _complete_alias pod
+	complete -F _complete_alias cm
+	complete -F _complete_alias s
+
+
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+export PATH=$PATH:~/scripts
+
+

@@ -7,8 +7,8 @@ cd /tmp
 sudo apt update
 sudo apt install docker.io curl -y
 sudo systemctl enable docker.service
-sudo adduser $USERNAME docker
-sudo service docker restart
+#sudo adduser $USERNAME docker
+#sudo service docker restart
 
 # minikube
 
@@ -20,7 +20,15 @@ sudo service docker restart
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 
 sudo install kubectl /usr/local/bin/kubectl
+sudo kubectl completion bash > /etc/bash_completion.d/kubectl
 
+sudo cp complete_alias.sh /etc/bash_completion.d/
+
+cp ~/.bashrc ~/bashrc-backup-$(date +%s)
+cp bashrc-for-k8s ~/.bashrc
+source ~/.bashrc
+
+h
 
 # helm
 
