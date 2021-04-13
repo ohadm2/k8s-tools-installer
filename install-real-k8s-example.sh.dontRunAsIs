@@ -1,16 +1,18 @@
-#!/bin/bash
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
-apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
-apt -y update
-apt install -y kubeadm kubectl kubelet kubernetes-cni
+# on both - prepare tools:
+sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
+sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+sudo apt -y update
+sudo apt install -y kubeadm kubectl kubelet kubernetes-cni
 
 # on master:
-swapoff -a # disable on fstab as well
+sudo swapoff -a # disable on fstab as well
 
-kubeadm init --apiserver-advertise-address=192.168.159.129 --pod-network-cidr=10.244.0.0/16
+sudo kubeadm init --apiserver-advertise-address=192.168.159.129 --pod-network-cidr=10.244.0.0/16
 
-kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+sudo kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
 
+# run after reboot
+sudo systemctl enable kubelet
 
   mkdir -p $HOME/.kube
   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -23,9 +25,9 @@ kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Doc
 kubectl get pods
 
 # on worker
-swapoff -a # disable on fstab as well
+sudo swapoff -a # disable on fstab as well
 
-kubeadm join 192.168.159.129:6443 --token w2uh2o.da31fmr6ny02x60q --discovery-token-ca-cert-hash sha256:30ae773ed5d1df906318d1373520e8895d725de6d01f5213b4dc3d33d24a57c6
+sudo kubeadm join 192.168.159.129:6443 --token w2uh2o.da31fmr6ny02x60q --discovery-token-ca-cert-hash sha256:30ae773ed5d1df906318d1373520e8895d725de6d01f5213b4dc3d33d24a57c6
 
 export KUBECONFIG=/etc/kubernetes/kubelet.conf
 
