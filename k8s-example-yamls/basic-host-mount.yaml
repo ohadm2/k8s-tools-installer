@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debian
+spec:
+  selector:
+    matchLabels:
+      run: debian
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: debian
+    spec:
+      containers:
+      - name: debian
+        image: debian
+        command: [ "bin/bash", "-c", "--" ]
+        args: [ "while true; do sleep 30; done;" ]
+        volumeMounts:
+        - mountPath: /host
+          name: slash
+      volumes:
+        - hostPath:
+            path: /
+          name: slash
+          
