@@ -4,6 +4,10 @@ sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 sudo apt -y update
 sudo apt install -y kubeadm kubectl kubelet kubernetes-cni
 
+sudo curl -O https://get.helm.sh/helm-v3.8.2-linux-amd64.tar.gz
+sudo tar -xzf helm-v3.8.2-linux-amd64.tar.gz
+sudo install linux-amd64/helm /usr/local/bin/helm
+
 # on master:
 sudo swapoff -a # disable on fstab as well
 
