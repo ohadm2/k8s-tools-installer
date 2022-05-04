@@ -21,12 +21,20 @@ sudo install minikube-linux-amd64 /usr/local/bin/minikube
 minikube start --driver=docker
 
 if ! [ -s "/etc/bash_completion.d/kubectl" ]; then
+	git clone https://github.com/ohadm2/k8s-tools-installer.git
+	
+	cd k8s-tools-installer
+
 	kubectl completion bash > /tmp/kubectl_completion
-	sudo cp /tmp/kubectl_completion /etc/bash_completion.d/kubectl
-	sudo cp complete_alias.sh /etc/bash_completion.d/
+	sudo install /tmp/kubectl_completion /etc/bash_completion.d/kubectl
+	sudo install complete_alias.sh /etc/bash_completion.d/
 
 	cp ~/.bashrc ~/bashrc-backup-$(date +%s)
 	cp bashrc-for-k8s ~/.bashrc
+	
+	/etc/bash_completion.d/kubectl
+	/etc/bash_completion.d/complete_alias.sh
+	
 	. ~/.bashrc
 fi
 
