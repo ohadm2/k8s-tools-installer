@@ -8,6 +8,10 @@ sudo apt -y update
 sudo apt install docker.io -y
 sudo apt install -y kubectl
 
+sudo curl -O https://get.helm.sh/helm-v3.9.0-linux-amd64.tar.gz
+sudo tar -xzf helm-v3.9.0-linux-amd64.tar.gz
+sudo install linux-amd64/helm /usr/local/bin/helm
+
 cat /etc/group | grep docker | grep $USERNAME &>/dev/null
 
 if ! [ "$?" -eq 0 ]; then
