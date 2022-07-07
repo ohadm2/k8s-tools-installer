@@ -24,7 +24,7 @@ if [ "$?" -eq 0 ]; then
     if ! [ "$?" -eq 0 ]; then
       # call yourself back after adding the user to the docker group
       sudo usermod -a -G docker $USERNAME
-      sudo $0
+      sudo bash $0
       # exit current run
       exit
     fi
