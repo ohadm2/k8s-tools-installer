@@ -24,8 +24,13 @@ sudo install kubectl /usr/local/bin/kubectl
 if ! [ -s "/etc/bash_completion.d/kubectl" ]; then
 	kubectl completion bash > /tmp/kubectl_completion
 	sudo cp /tmp/kubectl_completion /etc/bash_completion.d/kubectl
-	sudo cp complete_alias.sh /etc/bash_completion.d/
-
+	
+	curl -k -O https://raw.githubusercontent.com/ohadm2/k8s-tools-installer/master/complete_alias.sh
+	
+	if [ -s "/etc/complete_alias.sh" ]; then
+		sudo cp complete_alias.sh /etc/bash_completion.d/
+	fi
+	
 	cp ~/.bashrc ~/bashrc-backup-$(date +%s)
 	cp bashrc-for-k8s ~/.bashrc
 	. ~/.bashrc
@@ -57,6 +62,16 @@ echo helm version:
 echo -------------------
 
 helm version
+
+echo
+
+echo Env stuff:
+echo -------------------
+
+ls -lh ~/.bashrc*
+ls -lh /etc/bash_completion.d
+
+
 
 echo
 
