@@ -29,6 +29,9 @@ if ! [ -s "/etc/bash_completion.d/kubectl" ]; then
 	
 	sudo cp -v complete_alias.sh /etc/bash_completion.d/
 	
+	chmod +x /etc/bash_completion.d/complete_alias.sh
+	chmod +x /etc/bash_completion.d/kubectl
+	
 	curl -k -O https://raw.githubusercontent.com/ohadm2/k8s-tools-installer/master/bashrc-for-k8s-21-12-2021
 	
 	cp -v ~/.bashrc ~/bashrc-backup-$(date +%s)
