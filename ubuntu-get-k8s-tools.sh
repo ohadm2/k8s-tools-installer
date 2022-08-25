@@ -31,13 +31,11 @@ if ! [ -s "/etc/bash_completion.d/kubectl" ]; then
 	. ~/.bashrc
 fi
 
-h
-
 # helm
 
-curl -LO https://get.helm.sh/helm-v3.5.3-linux-amd64.tar.gz
+curl -LO https://get.helm.sh/helm-v3.9.4-linux-amd64.tar.gz
 
-tar -xzf helm-v3.5.3-linux-amd64.tar.gz
+tar -xzf helm-v3.9.4-linux-amd64.tar.gz
 
 sudo install linux-amd64/helm /usr/local/bin/helm
 
