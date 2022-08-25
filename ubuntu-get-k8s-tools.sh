@@ -23,16 +23,17 @@ sudo install kubectl /usr/local/bin/kubectl
 
 if ! [ -s "/etc/bash_completion.d/kubectl" ]; then
 	kubectl completion bash > /tmp/kubectl_completion
-	sudo cp /tmp/kubectl_completion /etc/bash_completion.d/kubectl
+	sudo cp -v /tmp/kubectl_completion /etc/bash_completion.d/kubectl
 	
 	curl -k -O https://raw.githubusercontent.com/ohadm2/k8s-tools-installer/master/complete_alias.sh
+	curl -k -O https://raw.githubusercontent.com/ohadm2/k8s-tools-installer/master/bashrc-for-k8s-21-12-2021
 	
 	if [ -s "/etc/complete_alias.sh" ]; then
 		sudo cp complete_alias.sh /etc/bash_completion.d/
 	fi
 	
-	cp ~/.bashrc ~/bashrc-backup-$(date +%s)
-	cp bashrc-for-k8s ~/.bashrc
+	cp -v ~/.bashrc ~/bashrc-backup-$(date +%s)
+	cp -v bashrc-for-k8s-21-12-2021 ~/.bashrc
 	. ~/.bashrc
 fi
 
