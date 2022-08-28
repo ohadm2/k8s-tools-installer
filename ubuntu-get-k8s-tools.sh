@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ `id -u` -eq 0 ]; then
+	echo "This script should run a a user with sudo privs and not as pure root because it updates the user's bashrc for k8s. Please re-run as a privileged user."
+	echo "Aborting..."
+	
+	exit 1
+fi
+
 cd /tmp
 
 # general
