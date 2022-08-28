@@ -21,7 +21,7 @@ curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stabl
 
 sudo install kubectl /usr/local/bin/kubectl
 
-if ! [ -s "/etc/bash_completion.d/kubectl" ]; then
+#if ! [ -s "/etc/bash_completion.d/kubectl" ]; then
 	kubectl completion bash > /tmp/kubectl_completion
 	sudo cp -v /tmp/kubectl_completion /etc/bash_completion.d/kubectl
 	
@@ -29,15 +29,15 @@ if ! [ -s "/etc/bash_completion.d/kubectl" ]; then
 	
 	sudo cp -v complete_alias.sh /etc/bash_completion.d/
 	
-	chmod +x /etc/bash_completion.d/complete_alias.sh
-	chmod +x /etc/bash_completion.d/kubectl
+	#chmod +x /etc/bash_completion.d/complete_alias.sh
+	#chmod +x /etc/bash_completion.d/kubectl
 	
 	curl -k -O https://raw.githubusercontent.com/ohadm2/k8s-tools-installer/master/bashrc-for-k8s-21-12-2021
 	
 	cp -v ~/.bashrc ~/bashrc-backup-$(date +%s)
 	cp -v bashrc-for-k8s-21-12-2021 ~/.bashrc
 	. ~/.bashrc
-fi
+#fi
 
 # helm
 
