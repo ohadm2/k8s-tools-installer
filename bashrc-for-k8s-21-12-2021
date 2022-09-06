@@ -206,7 +206,9 @@ function funcs()
 function setns() 
 { 	
 	export NAMESPACE=$1
-	alias kubectl='kubectl -n '$NAMESPACE
+	# using an alias for kubectl itself breaks bash completion so it is better to use 'kubectl config set-context' instead
+	#alias kubectl='kubectl -n '$NAMESPACE
+	kubectl config set-context --current --namespace=$NAMESPACE
 	alias helm='helm --namespace '$NAMESPACE
 }
 
