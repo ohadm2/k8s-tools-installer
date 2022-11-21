@@ -1,5 +1,7 @@
 #!/bin/bash
 
+HELM_FILE_NAME="helm-v3.10.2-linux-amd64.tar.gz"
+
 sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
 sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 
@@ -10,8 +12,8 @@ sudo apt install -y git
 sudo apt install docker.io -y
 sudo apt install -y kubectl
 
-sudo curl -O https://get.helm.sh/helm-v3.9.0-linux-amd64.tar.gz
-sudo tar -xzf helm-v3.9.0-linux-amd64.tar.gz
+sudo curl -O https://get.helm.sh/$HELM_FILE_NAME
+sudo tar -xzf $HELM_FILE_NAME
 sudo install linux-amd64/helm /usr/local/bin/helm
 
 cat /etc/group | grep docker | grep $USERNAME &>/dev/null
