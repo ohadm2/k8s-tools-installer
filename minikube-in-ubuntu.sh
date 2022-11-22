@@ -2,10 +2,22 @@
 
 HELM_FILE_NAME="helm-v3.10.2-linux-amd64.tar.gz"
 
-sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
-sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+PROJECT_DIR="/tmp/minikube-in-ubuntu"
 
-sudo apt -y update
+mkdir -p $PROJECT_DIR
+
+cd $PROJECT_DIR
+
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl
+
+#sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
+#sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+
+sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt update
 
 sudo apt install -y git
 
@@ -20,7 +32,7 @@ cat /etc/group | grep docker | grep $USERNAME &>/dev/null
 
 sudo service docker start
 
-sudo service docker status --no-pager
+sudo systemctl status docker --no-pager
 
 if [ "$?" -eq 0 ]; then
     cat /etc/group | grep docker | grep $USERNAME &>/dev/null
