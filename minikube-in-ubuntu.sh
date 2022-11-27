@@ -85,6 +85,8 @@ if [ "$?" -eq 0 ]; then
     
     echo "Run 'source ~/.bashrc' and then 'h' for help. Also run 'alias' to view the new aliases."
     
+    echo "Run 'newgrp docker' to apply the new group settings (current user was added to the docker group for docker access)"
+    
     echo "Run 'minikube start --driver=docker' to get k8s working via minikube ..."
     
     # relogin with the new group changes
