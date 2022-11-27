@@ -30,8 +30,8 @@ sudo apt-get install -y git apt-transport-https ca-certificates curl docker.io
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 sudo install kubectl /usr/local/bin/kubectl
 
-sudo curl -LO https://get.helm.sh/$HELM_FILE_NAME
-sudo tar -xzf $HELM_FILE_NAME
+curl -LO https://get.helm.sh/$HELM_FILE_NAME
+tar -xzf $HELM_FILE_NAME
 sudo install linux-amd64/helm /usr/local/bin/helm
 
 sudo systemctl start docker
