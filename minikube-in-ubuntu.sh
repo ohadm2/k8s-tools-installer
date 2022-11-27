@@ -5,7 +5,7 @@ HELM_FILE_NAME="helm-v3.10.2-linux-amd64.tar.gz"
 PROJECT_DIR="/tmp/minikube-in-ubuntu"
 
 if [ -d "$PROJECT_DIR" ]; then
-    rm -rf $PROJECT_DIR
+    sudo rm -rf $PROJECT_DIR
 fi
 
 mkdir -p $PROJECT_DIR
@@ -18,7 +18,7 @@ sudo apt-get install -y git apt-transport-https ca-certificates curl docker.io
 #sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
 #sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 
-if [ -s "/etc/apt/sources.list.d/kubernetes.list" ]; then
+if ! [ -s "/etc/apt/sources.list.d/kubernetes.list" ]; then
     sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
     echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 fi
