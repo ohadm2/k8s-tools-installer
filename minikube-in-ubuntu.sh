@@ -4,34 +4,34 @@ HELM_FILE_NAME="helm-v3.10.2-linux-amd64.tar.gz"
 
 PROJECT_DIR="/tmp/minikube-in-ubuntu"
 
+if [ -d "$PROJECT_DIR" ]; then
+    rm -rf $PROJECT_DIR
+fi
+
 mkdir -p $PROJECT_DIR
 
 cd $PROJECT_DIR
 
 sudo apt-get update
-sudo apt-get install -y apt-transport-https ca-certificates curl
+sudo apt-get install -y git apt-transport-https ca-certificates curl docker.io
 
 #sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
 #sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 
-sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+if [ -s "/etc/apt/sources.list.d/kubernetes.list" ]; then
+    sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+fi
 
 sudo apt update
 
-sudo apt install -y git
-
-sudo apt install docker.io -y
 sudo apt install -y kubectl
 
-sudo curl -O https://get.helm.sh/$HELM_FILE_NAME
+sudo curl -LO https://get.helm.sh/$HELM_FILE_NAME
 sudo tar -xzf $HELM_FILE_NAME
 sudo install linux-amd64/helm /usr/local/bin/helm
 
-cat /etc/group | grep docker | grep $USERNAME &>/dev/null
-
-sudo service docker start
-
+sudo systemctl start docker
 sudo systemctl status docker --no-pager
 
 if [ "$?" -eq 0 ]; then
