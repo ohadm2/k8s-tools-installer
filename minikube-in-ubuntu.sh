@@ -18,14 +18,17 @@ sudo apt-get install -y git apt-transport-https ca-certificates curl docker.io
 #sudo curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add
 #sudo apt-add-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
 
-if ! [ -s "/etc/apt/sources.list.d/kubernetes.list" ]; then
-    sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-fi
+#if ! [ -s "/etc/apt/sources.list.d/kubernetes.list" ]; then
+#    sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+#    #echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+#    /apt/dists/kubernetes-xenial/InRelease
+#fi
 
-sudo apt update
+#sudo apt update
+#sudo apt install -y kubectl
 
-sudo apt install -y kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install kubectl /usr/local/bin/kubectl
 
 sudo curl -LO https://get.helm.sh/$HELM_FILE_NAME
 sudo tar -xzf $HELM_FILE_NAME
