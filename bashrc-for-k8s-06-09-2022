@@ -313,16 +313,16 @@ function kcmd()
 					#echo "DEBUG: CONTAINERS_LIST=$CONTAINERS_LIST"
 
 					for j in $CONTAINERS_LIST; do
-						#echo "DEBUG: Running the command 'kubectl -n $NAMESPACE exec -it $i -c $j $CMD' ..."
+						#echo "DEBUG: Running the command 'kubectl -n $NAMESPACE exec $i -c $j -- $CMD' ..."
 						echo "#### Current Container: $j ####"
 						echo ""
-						kubectl -n $NAMESPACE exec -it $i -c $j $CMD 2>&1
+						kubectl -n $NAMESPACE exec $i -c $j -- $CMD 2>&1
 						echo ""
 					done
 				else
-					#echo "DEBUG: Running the command 'kubectl -n $NAMESPACE exec -it $i $CMD' ..."
+					#echo "DEBUG: Running the command 'kubectl -n $NAMESPACE exec $i -- $CMD' ..."
 					echo ""
-					kubectl -n $NAMESPACE exec -it $i $CMD 2>&1
+					kubectl -n $NAMESPACE exec $i -- $CMD 2>&1
 					echo ""
 				fi
 			done
